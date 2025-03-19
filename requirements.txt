@@ -47,4 +47,5 @@ rsa==4.9
 virtualenv==20.23.0
 geopy
 polyline
+drf_yasg
 

@@ -16,8 +16,20 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path,include
-
+from drf_yasg.views import get_schema_view
+from drf_yasg import openapi
+schema_view = get_schema_view(
+    openapi.Info(
+        title="driver-tracker-api",
+        default_version='v1',
+        description="My new awesome Django Rest API powered project.",
+        contact=openapi.Contact(email="daltonbigirimana5@gmail.com")
+    ),
+    public=True,
+)
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api/', include('drivertacker.urls')),
+    path('', include('drivertacker.urls')),
+    path('rest-auth/', include("rest_framework.urls")),
+    path('api-documentation', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
 ]
