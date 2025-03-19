@@ -277,3 +277,10 @@ class TripPlanView(APIView):
             return [], []
 
         return [{"day": 1, "segments": logs}], stops
+
+"""   {
+        "current_location": "New York, NY",
+        "pickup_location": "Philadelphia, PA",
+        "dropoff_location": "Washington, DC",
+        "current_cycle_used": 20.0
+    }"""
