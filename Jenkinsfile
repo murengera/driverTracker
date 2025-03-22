@@ -27,6 +27,16 @@ pipeline {
             }
         }
 
+        // Stage 3: Run tests using Django or pytest (adjust based on your test framework)
+        stage('Run tests') {
+            steps {
+                script {
+                    // Run Django tests inside the virtual environment and generate XML report
+                    sh './${VENV}/bin/python manage.py test --junitxml=test-results.xml'  // Generate XML report
+                }
+            }
+        }
+    }
 
     post {
         always {
