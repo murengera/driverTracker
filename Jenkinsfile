@@ -14,7 +14,7 @@ pipeline {
         stage('Install dependencies') {
             steps {
                 script {
-                    docker.image('python:3.8').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
+                    docker.image('python:3.12').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
                         sh 'pip install -r requirements.txt'  // Install dependencies
                     }
                 }
@@ -25,7 +25,7 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    docker.image('python:3.8').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
+                    docker.image('python:3.12').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
                         sh 'pytest --junitxml=test-results.xml'  // Run tests and generate a JUnit XML report
                     }
                 }
