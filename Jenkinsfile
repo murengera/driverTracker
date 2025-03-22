@@ -31,10 +31,5 @@ pipeline {
 
     }
 
-    post {
-        always {
-            // Publish test results to Jenkins
-            junit '**/test-results.xml'  // Ensure this matches the path of the generated XML report
-        }
-    }
+
 }
