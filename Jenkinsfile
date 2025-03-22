@@ -10,7 +10,7 @@ pipeline {
         // Stage 1: Checkout the source code from version control
         stage('Checkout') {
             steps {
-                checkout scms  // Automatically checks out the code from the configured SCM (e.g., Git)
+                checkout scm // Automatically checks out the code from the configured SCM (e.g., Git)
             }
         }
 
