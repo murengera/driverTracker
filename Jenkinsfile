@@ -18,9 +18,11 @@ pipeline {
         stage('Set up Python environment') {
             steps {
                 script {
-                    // Set up the virtual environment
+                    // Create the virtual environment
                     sh 'python3 -m venv ${VENV}'  // Create a virtual environment
-                    sh './${VENV}/bin/pip install --upgrade pip'  // Upgrade pip
+
+                    // Install dependencies from requirements.txt without upgrading pip
+                    sh './${VENV}/bin/pip install --upgrade setuptools'  // Optionally upgrade setuptools
                     sh './${VENV}/bin/pip install -r requirements.txt'  // Install dependencies
                 }
             }
@@ -30,7 +32,7 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    // Activate the virtual environment and run tests
+                    // Run Django tests inside the virtual environment
                     sh './${VENV}/bin/python manage.py test'  // Run Django's test suite
 
                     // Alternatively, use pytest if you have pytest-django installed
@@ -45,5 +47,3 @@ pipeline {
             // Publish test results to Jenkins, if using pytest
             junit '**/test-*.xml'  // If you are using pytest with --junitxml=test-results.xml
         }
-    }
-}
