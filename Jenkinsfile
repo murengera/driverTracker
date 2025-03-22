@@ -46,7 +46,7 @@ pipeline {
             steps {
                 script {
                     // Start the container in detached mode and capture the container ID
-                    def containerId = sh(script: 'docker run -dtripplanner', returnStdout: true).trim()
+                    def containerId = sh(script: 'docker run -d tripplanner', returnStdout: true).trim()
                     sleep 10  // Wait 10 seconds for the container to start
 
                     // Check if the container is still running
