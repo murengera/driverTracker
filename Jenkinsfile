@@ -27,12 +27,15 @@ pipeline {
             }
         }
 
-        // Stage 3: Run tests using Django or pytest (adjust based on your test framework)
+        // Stage 3: Run tests using pytest-django and generate XML report
         stage('Run tests') {
             steps {
                 script {
-                    // Run Django tests inside the virtual environment and generate XML report
-                    sh './${VENV}/bin/python manage.py test --junitxml=test-results.xml'  // Generate XML report
+                    // Install pytest and pytest-django if not already installed
+                    sh './${VENV}/bin/pip install pytest pytest-django'
+
+                    // Run tests using pytest and generate the JUnit XML report
+                    sh './${VENV}/bin/pytest --maxfail=1 --disable-warnings -q --junitxml=test-results.xml'
                 }
             }
         }
@@ -40,7 +43,7 @@ pipeline {
 
     post {
         always {
-            // Publish test results to Jenkins, assuming test-results.xml is the generated file
+            // Publish test results to Jenkins
             junit '**/test-results.xml'  // Ensure this matches the path of the generated XML report
         }
     }
