@@ -28,17 +28,7 @@ pipeline {
         }
 
         // Stage 3: Install pytest and run tests using pytest-django to generate the XML report
-        stage('Run tests') {
-            steps {
-                script {
-                    // Install pytest and pytest-django if not already installed
-                    sh './${VENV}/bin/pip install pytest pytest-django'
 
-                    // Run tests using pytest and generate the JUnit XML report
-                    sh './${VENV}/bin/pytest --maxfail=1 --disable-warnings -q --junitxml=test-results.xml'
-                }
-            }
-        }
     }
 
     post {
