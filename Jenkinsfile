@@ -21,8 +21,7 @@ pipeline {
                     // Create the virtual environment
                     sh 'python3 -m venv ${VENV}'  // Create a virtual environment
 
-                    // Install dependencies from requirements.txt without upgrading pip
-                    sh './${VENV}/bin/pip install --upgrade setuptools'  // Optionally upgrade setuptools
+                    // Install dependencies from requirements.txt directly
                     sh './${VENV}/bin/pip install -r requirements.txt'  // Install dependencies
                 }
             }
