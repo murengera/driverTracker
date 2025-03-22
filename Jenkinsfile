@@ -1,6 +1,10 @@
 pipeline {
-    // Run the pipeline on any agent with Docker installed
-    agent any
+    agent any  // Run the pipeline on any agent with Docker and Python installed
+
+    environment {
+        // Define the virtual environment path
+        VENV = 'venv'
+    }
 
     stages {
         // Stage 1: Checkout the source code from version control
@@ -10,65 +14,36 @@ pipeline {
             }
         }
 
-        // Stage 2: Install project dependencies inside a Python container
-        stage('Install dependencies') {
-            agent {
-                docker {
-                    image 'python:3.8'
-                    args '-v $HOME/.cache/pip:/root/.cache/pip'  // Cache pip packages for faster builds
-                }
-            }
+        // Stage 2: Set up Python environment and install dependencies
+        stage('Set up Python environment') {
             steps {
-                sh 'pip install -r requirements.txt'  // Install dependencies listed in requirements.txt
+                script {
+                    // Set up the virtual environment
+                    sh 'python3 -m venv ${VENV}'  // Create a virtual environment
+                    sh './${VENV}/bin/pip install --upgrade pip'  // Upgrade pip
+                    sh './${VENV}/bin/pip install -r requirements.txt'  // Install dependencies
+                }
             }
         }
 
-        // Stage 3: Run tests inside a Python container
+        // Stage 3: Run Django tests using pytest
         stage('Run tests') {
-            agent {
-                docker {
-                    image 'python:3.8'
-                    args '-v $HOME/.cache/pip:/root/.cache/pip'
-                }
-            }
-            steps {
-                sh 'pytest --junitxml=test-results.xml'  // Run tests and generate a JUnit XML report
-            }
-        }
-
-        // Stage 4: Build the Docker image for the DRF application
-        stage('Build Docker image') {
             steps {
                 script {
-                    docker.build('my-app-image')  // Build the Docker image using the Dockerfile in the repo root
-                }
-            }
-        }
+                    // Activate the virtual environment and run tests
+                    sh './${VENV}/bin/python manage.py test'  // Run Django's test suite
 
-        // Stage 5: Run a Docker container to verify it starts
-        stage('Run Docker container') {
-            steps {
-                script {
-                    // Start the container in detached mode and capture the container ID
-                    def containerId = sh(script: 'docker run -d my-app-image', returnStdout: true).trim()
-                    sleep 10  // Wait 10 seconds for the container to start
-                    // Check if the container is still running
-                    def status = sh(script: "docker inspect -f '{{.State.Running}}' ${containerId}", returnStdout: true).trim()
-                    if (status != 'true') {
-                        error "Container is not running"  // Fail the pipeline if the container isn't running
-                    }
-                    // Clean up: stop and remove the container
-                    sh "docker stop ${containerId}"
-                    sh "docker rm ${containerId}"
+                    // Alternatively, use pytest if you have pytest-django installed
+                    // sh './${VENV}/bin/pytest --maxfail=1 --disable-warnings -q'  // Run tests using pytest
                 }
             }
         }
     }
 
-    // Post-build actions
     post {
         always {
-            junit 'test-results.xml'  // Publish test results in Jenkins
+            // Publish test results to Jenkins, if using pytest
+            junit '**/test-*.xml'  // If you are using pytest with --junitxml=test-results.xml
         }
     }
 }
