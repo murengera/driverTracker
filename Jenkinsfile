@@ -10,13 +10,11 @@ pipeline {
             }
         }
 
-        // Stage 2: Install project dependencies inside a Python container
+        // Stage 2: Install project dependencies (outside the Docker container)
         stage('Install dependencies') {
             steps {
                 script {
-                    docker.image('python:3.12').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
-                        sh 'pip install -r requirements.txt'  // Install dependencies
-                    }
+                    sh 'pip install -r requirements.txt'  // Install dependencies in the host environment
                 }
             }
         }
@@ -26,12 +24,12 @@ pipeline {
             steps {
                 script {
                     docker.image('python:3.12').inside('-v $HOME/.cache/pip:/root/.cache/pip') {
-                        sh 'pytest --junitxml=test-results.xml'  // Run tests and generate a JUnit XML report
+                        sh 'pytest --junitxml=test-results.xml'  // Run tests inside Docker container and generate a JUnit XML report
                     }
                 }
             }
         }
-    }  // ✅ Closing bracket for "stages" block
+    }
 
     // Post-build actions
     post {
