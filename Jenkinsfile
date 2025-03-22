@@ -47,3 +47,5 @@ pipeline {
             // Publish test results to Jenkins, if using pytest
             junit '**/test-*.xml'  // If you are using pytest with --junitxml=test-results.xml
         }
+    }
+}
