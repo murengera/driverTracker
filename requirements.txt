@@ -50,3 +50,4 @@ polyline
 drf_yasg
 pytest-django
 
+pytest
