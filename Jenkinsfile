@@ -28,7 +28,6 @@ pipeline {
             }
         }
 
-        // Stage 3: Install pytest and run tests using pytest-django to generate the XML report
 
     }
 
