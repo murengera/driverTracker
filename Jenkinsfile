@@ -31,9 +31,7 @@ pipeline {
                 }
             }
         }
-
-
-
+    }  // ✅ Closing bracket for "stages" block
 
     // Post-build actions
     post {
