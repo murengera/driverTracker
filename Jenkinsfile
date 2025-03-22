@@ -31,11 +31,8 @@ pipeline {
         stage('Run tests') {
             steps {
                 script {
-                    // Run Django tests inside the virtual environment
-                    sh './${VENV}/bin/python manage.py test'  // Run Django's test suite
-
-                    // Alternatively, use pytest if you have pytest-django installed
-                    // sh './${VENV}/bin/pytest --maxfail=1 --disable-warnings -q'  // Run tests using pytest
+                    // Run Django tests inside the virtual environment and generate XML report
+                    sh './${VENV}/bin/python manage.py test --junitxml=test-results.xml'  // Generate XML report
                 }
             }
         }
@@ -43,8 +40,8 @@ pipeline {
 
     post {
         always {
-            // Publish test results to Jenkins, if using pytest
-            junit '**/test-*.xml'  // If you are using pytest with --junitxml=test-results.xml
+            // Publish test results to Jenkins, assuming test-results.xml is the generated file
+            junit '**/test-results.xml'  // Ensure this matches the path of the generated XML report
         }
     }
 }
