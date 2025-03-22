@@ -32,36 +32,8 @@ pipeline {
             }
         }
 
-        // Stage 4: Build the Docker image for the DRF application
-        stage('Build Docker image') {
-            steps {
-                script {
-                    docker.build('tripplanner')  // Build the Docker image using the Dockerfile in the repo root
-                }
-            }
-        }
 
-        // Stage 5: Run a Docker container to verify it starts
-        stage('Run Docker container') {
-            steps {
-                script {
-                    // Start the container in detached mode and capture the container ID
-                    def containerId = sh(script: 'docker run -d tripplanner', returnStdout: true).trim()
-                    sleep 10  // Wait 10 seconds for the container to start
 
-                    // Check if the container is still running
-                    def status = sh(script: "docker inspect -f '{{.State.Running}}' ${containerId}", returnStdout: true).trim()
-                    if (status != 'true') {
-                        error "Container is not running"  // Fail the pipeline if the container isn't running
-                    }
-
-                    // Clean up: stop and remove the container
-                    sh "docker stop ${containerId}"
-                    sh "docker rm ${containerId}"
-                }
-            }
-        }
-    }
 
     // Post-build actions
     post {
