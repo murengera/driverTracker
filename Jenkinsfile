@@ -27,7 +27,7 @@ pipeline {
             }
         }
 
-        // Stage 3: Run tests using pytest-django and generate XML report
+        // Stage 3: Install pytest and run tests using pytest-django to generate the XML report
         stage('Run tests') {
             steps {
                 script {
