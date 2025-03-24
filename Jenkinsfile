@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     environment {
-        SONAR_TOKEN = credentials('token') // Store token in Jenkins credentials
+        SONAR_TOKEN = credentials('token') // Ensure 'token' exists in Jenkins credentials
     }
 
+    stages {  // ✅ Missing "stages" block added
         stage('Build') {
             steps {
                 sh 'mvn clean package'
@@ -14,7 +15,13 @@ pipeline {
         stage('SonarQube Analysis') {
             steps {
                 withSonarQubeEnv('SonarQube') {
-                    sh 'sonar-scanner -Dsonar.projectKey=my_project -Dsonar.sources=. -Dsonar.host.url=http://localhost:9000 -Dsonar.login=$SONAR_TOKEN'
+                    sh '''
+                        sonar-scanner \
+                        -Dsonar.projectKey=sample \
+                        -Dsonar.sources=. \
+                        -Dsonar.host.url=http://localhost:9000 \
+                        -Dsonar.login=${SONAR_TOKEN}
+                    '''
                 }
             }
         }
