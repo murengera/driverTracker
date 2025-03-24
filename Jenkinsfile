@@ -43,6 +43,8 @@
 //         }
 //     }
 // }
+
+
 pipeline {
     agent any
 
@@ -56,7 +58,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/murengera/driverTracker.git'
+                    url: 'https://github.com/murengera/driverTracker.git'  // Replace with your repo URL
             }
         }
 
@@ -90,6 +92,8 @@ pipeline {
                     sh """
                         curl -X POST \
                           -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+                          -H "Content-Type: application/json" \
+                          -d '{"dockerImage": "${DOCKER_IMAGE}:${TAG}"}' \
                           https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
                     """
                 }
