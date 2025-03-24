@@ -47,7 +47,7 @@ pipeline {
     agent any
 
     environment {
-        DOCKER_IMAGE = 'daltonbigirimana5/dockerimages:production'
+        DOCKER_IMAGE = 'daltonbigirimana5/dockerimages'
         TAG = "${BUILD_NUMBER}"
         RENDER_SERVICE_ID = 'srv-cvgm73dds78s73f824dg'  // Replace with your actual Render service ID
     }
