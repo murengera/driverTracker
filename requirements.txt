@@ -49,5 +49,5 @@ geopy
 polyline
 drf_yasg
 pytest-django
-
+dj-database-url
 pytest
