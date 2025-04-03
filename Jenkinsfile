@@ -58,20 +58,14 @@
 // }
 
 
-
 pipeline {
     agent any
-
-    tools {
-        jdk 'jdk17'
-        nodejs 'node16'
-    }
 
     environment {
         SCANNER_HOME = "/home/daltonbigirimana/Downloads/sonar-scanner-7.0.2.4839-linux-x64"
         DOCKER_IMAGE = 'daltonbigirimana5/triptrackerimage'
         TAG = "${BUILD_NUMBER}"
-        RENDER_SERVICE_ID = 'srv-cvgm73dds78s73f824dg'  // Replace with your actual Render service ID
+        RENDER_SERVICE_ID = 'srv-cvgm73dds78s73f824dg'  // Replace with actual Render service ID
     }
 
     stages {
@@ -84,7 +78,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 git branch: 'main',
-                    url: 'https://github.com/murengera/driverTracker.git'  // Replace with your repo URL
+                    url: 'https://github.com/murengera/triptracker.git'  // Updated repo URL
             }
         }
 
@@ -94,10 +88,11 @@ pipeline {
                     withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
                         sh """
                             ${SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectName=driverTracker \
-                            -Dsonar.projectKey=driverTracker \
+                            -Dsonar.projectName=triptracker \
+                            -Dsonar.projectKey=triptracker \
                             -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.token=${SONAR_TOKEN}
+                            -Dsonar.token=${SONAR_TOKEN} \
+                            -X  # Debug logging enabled
                         """
                     }
                 }
@@ -106,7 +101,7 @@ pipeline {
 
         stage('Build Docker Image') {
             steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${TAG} -t ${DOCKER_IMAGE}:production .'
+                sh 'docker build -t ${DOCKER_IMAGE}:${TAG} -t ${DOCKER_IMAGE}:latest .'
             }
         }
 
@@ -116,13 +111,20 @@ pipeline {
             }
         }
 
+        stage("TRIVY Security Scan") {
+            steps {
+                sh "trivy image ${DOCKER_IMAGE}:latest > trivyimage.txt"
+                archiveArtifacts artifacts: 'trivyimage.txt', fingerprint: true
+            }
+        }
+
         stage('Push to Registry') {
             steps {
                 withCredentials([usernamePassword(credentialsId: 'f166e43a-d338-4020-88f9-5b3e6fe4e091', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
                     sh '''
                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
                         docker push ${DOCKER_IMAGE}:${TAG}
-                        docker push ${DOCKER_IMAGE}:production
+                        docker push ${DOCKER_IMAGE}:latest
                     '''
                 }
             }
@@ -139,6 +141,13 @@ pipeline {
                           https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
                     """
                 }
+            }
+        }
+
+        stage('Deploy to Container') {
+            steps {
+                sh 'docker stop triptracker || true && docker rm triptracker || true'
+                sh 'docker run -d --name triptracker -p 8000:8000 ${DOCKER_IMAGE}:latest'
             }
         }
     }
