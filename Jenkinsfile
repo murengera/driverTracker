@@ -1,22 +1,25 @@
+//
+//
 // pipeline {
 //     agent any
 //
 //     environment {
-//         DOCKER_IMAGE = 'daltonbigirimana5/dockerimages'  // ✅ Fixed: Wrapped in quotes
-//         TAG = "${BUILD_NUMBER}"  // Use Jenkins build number for versioning
+//         DOCKER_IMAGE = 'daltonbigirimana5/dockerimages'
+//         TAG = "${BUILD_NUMBER}"
+//         RENDER_SERVICE_ID = 'srv-cvgm73dds78s73f824dg'  // Replace with your actual Render service ID
 //     }
 //
 //     stages {
 //         stage('Checkout') {
 //             steps {
-//                git branch: 'main',
+//                 git branch: 'main',
 //                     url: 'https://github.com/murengera/driverTracker.git'  // Replace with your repo URL
 //             }
 //         }
 //
 //         stage('Build Docker Image') {
 //             steps {
-//                 sh 'docker build -t ${DOCKER_IMAGE}:${TAG} .'
+//                 sh 'docker build -t ${DOCKER_IMAGE}:${TAG} -t ${DOCKER_IMAGE}:production .'
 //             }
 //         }
 //
@@ -32,12 +35,22 @@
 //                     sh '''
 //                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 //                         docker push ${DOCKER_IMAGE}:${TAG}
+//                         docker push ${DOCKER_IMAGE}:production
 //                     '''
 //                 }
 //             }
 //         }
 //
-//
+//         stage('Deploy to Render') {
+//             steps {
+//                 withCredentials([string(credentialsId: 'render-api-token', variable: 'RENDER_API_TOKEN')]) {
+//                     sh """
+//                         curl -X POST \
+//                           -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+//                           -H "Content-Type: application/json" \
+//                           -d '{"dockerImage": "${DOCKER_IMAGE}:${TAG}"}' \
+//                           https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
+//                     """
 //                 }
 //             }
 //         }
@@ -45,20 +58,49 @@
 // }
 
 
+
 pipeline {
     agent any
 
+    tools {
+        jdk 'jdk17'
+        nodejs 'node16'
+    }
+
     environment {
-        DOCKER_IMAGE = 'daltonbigirimana5/dockerimages'
+        SCANNER_HOME = "/home/daltonbigirimana/Downloads/sonar-scanner-7.0.2.4839-linux-x64"
+        DOCKER_IMAGE = 'daltonbigirimana5/triptrackerimage'
         TAG = "${BUILD_NUMBER}"
         RENDER_SERVICE_ID = 'srv-cvgm73dds78s73f824dg'  // Replace with your actual Render service ID
     }
 
     stages {
+        stage('Clean Workspace') {
+            steps {
+                cleanWs()
+            }
+        }
+
         stage('Checkout') {
             steps {
                 git branch: 'main',
                     url: 'https://github.com/murengera/driverTracker.git'  // Replace with your repo URL
+            }
+        }
+
+        stage("SonarQube Analysis") {
+            steps {
+                withSonarQubeEnv('sonar-server') {
+                    withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
+                        sh """
+                            ${SCANNER_HOME}/bin/sonar-scanner \
+                            -Dsonar.projectName=driverTracker \
+                            -Dsonar.projectKey=driverTracker \
+                            -Dsonar.host.url=http://localhost:9000 \
+                            -Dsonar.token=${SONAR_TOKEN}
+                        """
+                    }
+                }
             }
         }
 
@@ -98,6 +140,17 @@ pipeline {
                     """
                 }
             }
+        }
+    }
+
+    post {
+        always {
+            emailext attachLog: true,
+                subject: "'${currentBuild.result}'",
+                body: "Project: ${env.JOB_NAME}<br/>" +
+                      "Build Number: ${env.BUILD_NUMBER}<br/>" +
+                      "URL: ${env.BUILD_URL}<br/>",
+                to: 'postbox.aj99@gmail.com, daltonigirimana5@gmail.com'
         }
     }
 }
