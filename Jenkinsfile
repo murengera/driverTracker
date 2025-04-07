@@ -36,26 +36,7 @@
 //                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
 //                         docker push ${DOCKER_IMAGE}:${TAG}
 //                         docker push ${DOCKER_IMAGE}:production
-//                     '''
-//                 }
-//             }
-//         }
-//
-//         stage('Deploy to Render') {
-//             steps {
-//                 withCredentials([string(credentialsId: 'render-api-token', variable: 'RENDER_API_TOKEN')]) {
-//                     sh """
-//                         curl -X POST \
-//                           -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
-//                           -H "Content-Type: application/json" \
-//                           -d '{"dockerImage": "${DOCKER_IMAGE}:${TAG}"}' \
-//                           https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
-//                     """
-//                 }
-//             }
-//         }
-//     }
-// }
+
 
 
 pipeline {
