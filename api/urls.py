@@ -20,7 +20,7 @@ from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 schema_view = get_schema_view(
     openapi.Info(
-        title="driver-tracker-api",
+        title="driver-tracker-api-dalton",
         default_version='v1',
         description="My new awesome Django Rest API powered project.",
         contact=openapi.Contact(email="daltonbigirimana5@gmail.com")
