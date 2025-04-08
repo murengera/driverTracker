@@ -40,7 +40,7 @@ class Stop(models.Model):
         ]
     )
 
-    duration = models.FloatField()  # In hours
+    duration = models.FloatField()
 
     def __str__(self):
         return f"{self.type} at {self.location}"
