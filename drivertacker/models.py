@@ -38,7 +38,8 @@ class Stop(models.Model):
             ('pickup', 'Pickup'),
             ('dropoff', 'Dropoff')
         ]
-    )
+    )sdfdfa
+
     duration = models.FloatField()  # In hours
 
     def __str__(self):
