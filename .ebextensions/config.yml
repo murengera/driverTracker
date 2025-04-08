@@ -4,7 +4,6 @@ branch-defaults:
     group_suffix: null
 global:
   application_name: driverTracker
-  branch: null
   default_ec2_keyname: aws-eb
   default_platform: Docker running on 64bit Amazon Linux 2023
   default_region: us-west-2
