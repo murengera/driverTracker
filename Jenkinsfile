@@ -22,23 +22,23 @@ pipeline {
                 git branch: 'main',credentialsId:github, url: 'https://github.com/murengera/triptracker.git'  // Updated repo URL
             }
         }
-
-        stage("SonarQube Analysis") {
-            steps {
-                withSonarQubeEnv('sonar-server') {
-                    withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
-                        sh """
-                            ${SCANNER_HOME}/bin/sonar-scanner \
-                            -Dsonar.projectName=triptracker \
-                            -Dsonar.projectKey=triptracker \
-                            -Dsonar.host.url=http://localhost:9000 \
-                            -Dsonar.token=${SONAR_TOKEN} \
-                            -X  # Debug logging enabled
-                        """
-                    }
-                }
-            }
-        }
+//
+//         stage("SonarQube Analysis") {
+//             steps {
+//                 withSonarQubeEnv('sonar-server') {
+//                     withCredentials([string(credentialsId: 'Sonar-token', variable: 'SONAR_TOKEN')]) {
+//                         sh """
+//                             ${SCANNER_HOME}/bin/sonar-scanner \
+//                             -Dsonar.projectName=triptracker \
+//                             -Dsonar.projectKey=triptracker \
+//                             -Dsonar.host.url=http://localhost:9000 \
+//                             -Dsonar.token=${SONAR_TOKEN} \
+//                             -X  # Debug logging enabled
+//                         """
+//                     }
+//                 }
+//             }
+//         }
 
         stage('Build Docker Image') {
             steps {
