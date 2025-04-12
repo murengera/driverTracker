@@ -40,58 +40,58 @@ pipeline {
 //             }
 //         }
 
-        stage('Build Docker Image') {
-            steps {
-                sh 'docker build -t ${DOCKER_IMAGE}:${TAG} -t ${DOCKER_IMAGE}:latest .'
-            }
-        }
-
+//         stage('Build Docker Image') {
+//             steps {
+//                 sh 'docker build -t ${DOCKER_IMAGE}:${TAG} -t ${DOCKER_IMAGE}:latest .'
+//             }
+//         }
+//
         stage('Test') {
             steps {
                 sh 'docker run --rm ${DOCKER_IMAGE}:${TAG} python manage.py test'
             }
         }
 
-        stage("TRIVY Security Scan") {
-            steps {
-                sh "trivy image ${DOCKER_IMAGE}:latest > trivyimage.txt"
-                archiveArtifacts artifacts: 'trivyimage.txt', fingerprint: true
-            }
-        }
+//         stage("TRIVY Security Scan") {
+//             steps {
+//                 sh "trivy image ${DOCKER_IMAGE}:latest > trivyimage.txt"
+//                 archiveArtifacts artifacts: 'trivyimage.txt', fingerprint: true
+//             }
+//         }
 
-        stage('Push to Registry') {
-            steps {
-                withCredentials([usernamePassword(credentialsId: 'f166e43a-d338-4020-88f9-5b3e6fe4e091', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
-                    sh '''
-                        echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
-                        docker push ${DOCKER_IMAGE}:${TAG}
-                        docker push ${DOCKER_IMAGE}:latest
-                    '''
-                }
-            }
-        }
+//         stage('Push to Registry') {
+//             steps {
+//                 withCredentials([usernamePassword(credentialsId: 'f166e43a-d338-4020-88f9-5b3e6fe4e091', usernameVariable: 'DOCKER_USERNAME', passwordVariable: 'DOCKER_PASSWORD')]) {
+//                     sh '''
+//                         echo $DOCKER_PASSWORD | docker login -u $DOCKER_USERNAME --password-stdin
+//                         docker push ${DOCKER_IMAGE}:${TAG}
+//                         docker push ${DOCKER_IMAGE}:latest
+//                     '''
+//                 }
+//             }
+//         }
 
-        stage('Deploy to Render') {
-            steps {
-                withCredentials([string(credentialsId: 'render-api-token', variable: 'RENDER_API_TOKEN')]) {
-                    sh """
-                        curl -X POST \
-                          -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
-                          -H "Content-Type: application/json" \
-                          -d '{"dockerImage": "${DOCKER_IMAGE}:${TAG}"}' \
-                          https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
-                    """
-                }
-            }
-        }
+//         stage('Deploy to Render') {
+//             steps {
+//                 withCredentials([string(credentialsId: 'render-api-token', variable: 'RENDER_API_TOKEN')]) {
+//                     sh """
+//                         curl -X POST \
+//                           -H "Authorization: Bearer ${RENDER_API_TOKEN}" \
+//                           -H "Content-Type: application/json" \
+//                           -d '{"dockerImage": "${DOCKER_IMAGE}:${TAG}"}' \
+//                           https://api.render.com/v1/services/${RENDER_SERVICE_ID}/deploys
+//                     """
+//                 }
+//             }
+//         }
 
-        stage('Deploy to Container') {
-            steps {
-                sh 'docker stop triptracker || true && docker rm triptracker || true'
-                sh 'docker run -d --name triptracker -p 8000:8000 ${DOCKER_IMAGE}:latest'
-            }
-        }
-    }
+//         stage('Deploy to Container') {
+//             steps {
+//                 sh 'docker stop triptracker || true && docker rm triptracker || true'
+//                 sh 'docker run -d --name triptracker -p 8000:8000 ${DOCKER_IMAGE}:latest'
+//             }
+//         }
+//     }
 
     post {
         always {
