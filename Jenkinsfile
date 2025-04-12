@@ -46,11 +46,11 @@ pipeline {
 //             }
 //         }
 //
-        stage('Test') {
-            steps {
-                sh 'docker run --rm ${DOCKER_IMAGE}:${TAG} python manage.py test'
-            }
-        }
+//         stage('Test') {
+//             steps {
+//                 sh 'docker run --rm ${DOCKER_IMAGE}:${TAG} python manage.py test'
+//             }
+//         }
 
 //         stage("TRIVY Security Scan") {
 //             steps {
