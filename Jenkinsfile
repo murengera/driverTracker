@@ -2,7 +2,6 @@
 
 pipeline {
     agent any
-
     environment {
         SCANNER_HOME = "/home/daltonbigirimana/Downloads/sonar-scanner-7.0.2.4839-linux-x64"
         DOCKER_IMAGE = 'daltonbigirimana5/triptrackerimage'
